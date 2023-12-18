@@ -43,6 +43,21 @@ test('POST requests adds a new post succesfully',async()=>{
     expect(notesEnd).toHaveLength(helper.initialBlogs.length+1)
 })
 
+test('if likes property is not defined it is initialized at 0', async()=>{
+    const newBlog = {
+        title: 'Si bastasen un par de canciones',
+        author: 'Eros Ramazotti',
+        url: 'https://www.youtube.com/watch?v=BP1MrzirtEo',
+    }
+
+    const res = await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(201)
+
+    expect(res.body.likes).toBe(0)
+})
+
 afterAll(async () => {
     await mongoose.connection.close()
 })
