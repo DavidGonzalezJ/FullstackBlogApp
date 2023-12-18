@@ -1,10 +1,10 @@
 const {MONGODB_URI , PORT} = require('./utils/config')
 require('express-async-errors')
 const express = require('express')
-const app = express()
 const cors = require('cors')
-const mongoose = require('mongoose')
+const app = express()
 const blogsRouter = require('./controllers/blogs')
+const mongoose = require('mongoose')
 require('dotenv').config()
 
 app.use(express.json())

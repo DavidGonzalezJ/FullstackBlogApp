@@ -80,6 +80,17 @@ test('if title or url are missing the response is 400 bad request', async() =>{
         .expect(400)
 },)
 
+test('DELETE requests delete blogs succesfully', async () =>{
+    const res = await api.get('/api/blogs')
+    const idToDelete = res.body[0].id.toString()
+
+    await api.delete(`/api/blogs/${idToDelete}`)
+        .expect(204)
+    
+    const newRes = await api.get('/api/blogs')
+    expect(res.body).toHaveLength(newRes.body.length + 1)
+})
+
 afterAll(async () => {
     await mongoose.connection.close()
 })
