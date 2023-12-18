@@ -91,6 +91,25 @@ test('DELETE requests delete blogs succesfully', async () =>{
     expect(res.body).toHaveLength(newRes.body.length + 1)
 })
 
+test('PUT requests update blogs succesfully', async () => {
+    const blogToUpdate = {
+        title: 'Mine Sweeper',
+        author: 'Harry Osborn',
+        url: 'https://onesquareminesweeper.com/',
+        likes: 222
+    }
+    const res = await api.get('/api/blogs')
+    const idToUpdate = res.body[0].id.toString()
+    const initialLikes = res.body[0].likes
+
+    await api.put(`/api/blogs/${idToUpdate}`)
+        .send(blogToUpdate)
+        .expect(200)
+    
+    const response = await api.get(`/api/blogs/${idToUpdate}`)
+    expect(response.body.likes).not.toBe(initialLikes)
+})
+
 afterAll(async () => {
     await mongoose.connection.close()
 })
