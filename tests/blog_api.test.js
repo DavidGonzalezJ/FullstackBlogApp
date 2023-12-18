@@ -58,6 +58,28 @@ test('if likes property is not defined it is initialized at 0', async()=>{
     expect(res.body.likes).toBe(0)
 })
 
+test('if title or url are missing the response is 400 bad request', async() =>{
+    const blogWithNoTitle = {
+        author: 'Eros Ramazotti',
+        url: 'https://www.youtube.com/watch?v=BP1MrzirtEo',
+        likes: 897
+    }
+    const blogWithNoUrl = {
+        title: 'Si bastasen un par de canciones',
+        author: 'Eros Ramazotti',
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(blogWithNoTitle)
+        .expect(400)
+
+    await api
+        .post('/api/blogs')
+        .send(blogWithNoUrl)
+        .expect(400)
+},)
+
 afterAll(async () => {
     await mongoose.connection.close()
 })
