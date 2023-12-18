@@ -26,6 +26,23 @@ test('the unique property of each blog is named id',async()=>{
     expect(response.body[0].id).toBeDefined()
 })
 
+test('POST requests adds a new post succesfully',async()=>{
+    const newBlog = {
+        title: 'Si bastasen un par de canciones',
+        author: 'Eros Ramazotti',
+        url: 'https://www.youtube.com/watch?v=BP1MrzirtEo',
+        likes: 69
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(201)
+
+    notesEnd = await helper.blogsInDB()
+    expect(notesEnd).toHaveLength(helper.initialBlogs.length+1)
+})
+
 afterAll(async () => {
     await mongoose.connection.close()
 })
