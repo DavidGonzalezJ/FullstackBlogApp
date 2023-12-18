@@ -21,6 +21,11 @@ test('all blogs are returned in json format',async ()=>{
     expect(response.body).toHaveLength(helper.initialBlogs.length)
 })
 
+test('the unique property of each blog is named id',async()=>{
+    const response = await api.get('/api/blogs')
+    expect(response.body[0].id).toBeDefined()
+})
+
 afterAll(async () => {
     await mongoose.connection.close()
 })
