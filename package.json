@@ -26,6 +26,7 @@
     "install": "^0.13.0",
     "mongodb": "^6.3.0",
     "mongoose": "^7.6.5",
+    "mongoose-unique-validator": "^4.0.0",
     "npm": "^10.2.5"
   },
   "jest": {

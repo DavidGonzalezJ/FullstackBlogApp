@@ -3,6 +3,7 @@ const supertest = require('supertest')
 const app = require('../app')
 const api = supertest(app)
 const Blog = require('../models/blog')
+const User = require('../models/user')
 const helper = require('./test_helper')
 
 beforeEach(async()=>{
@@ -108,6 +109,88 @@ test('PUT requests update blogs succesfully', async () => {
     
     const response = await api.get(`/api/blogs/${idToUpdate}`)
     expect(response.body.likes).not.toBe(initialLikes)
+})
+
+describe('test user creation and possible errors', () => {
+    beforeEach(async () => {
+        await User.deleteMany({})
+    })
+
+    test('valid user and password returns OK', async () => {
+        const newUser = {
+            username: 'macaulay',
+            name: 'Macaulay Culkin',
+            password: 'trisomias'
+        }
+
+        await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(201)
+            .expect('Content-Type', /application\/json/)
+    })
+
+    test('valid user and invalid password returns error 401', async () => {
+        const newUser = {
+            username: 'macaulay',
+            password: '2o'
+        }
+
+        await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(401)
+    })
+
+    test('invalid user and valid password returns error 400', async () => {
+        const newUser = {
+            username: 'ma',
+            name: 'Macaulay Culkin',
+            password: 'lotinaMalo'
+        }
+
+        await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(400)
+    })
+
+    test('invalid user and invalid password returns error 401', async () => {
+        const newUser = {
+            username: 'ma',
+            name: 'Macaulay Culkin',
+            password: 'lo'
+        }
+
+        await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(401)
+    })
+
+    test('repeated user returns error validation error 400', async () => {
+        const newUser = {
+            username: 'macaulay',
+            name: 'Macaulay Culkin',
+            password: 'trisomias'
+        }
+
+        await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(201)
+
+        const repUser = {
+            username: 'macaulay',
+            name: 'Magalinn',
+            password: 'tromias'
+        }
+
+        await api
+            .post('/api/users')
+            .send(repUser)
+            .expect(400)
+    })
 })
 
 afterAll(async () => {
