@@ -9,6 +9,7 @@ const User = require('../models/user')
 
 usersRouter.get('/', async (request, response) => {
     const users = await User.find({})
+        .populate('blogs',{ title:1, author:1 , url:1 , likes:1 })
     response.json(users)
 })
 
@@ -18,7 +19,7 @@ usersRouter.post('/', async (request, response) => {
     if(!body.password || body.password.length < 3){
         return response.status(401).json({error:'password invalid'})
     }
-    
+
     const saltRounds = 10
     const passHash = await bcrypt.hash(body.password, saltRounds)
 
