@@ -6,12 +6,29 @@ const Blog = require('../models/blog')
 const User = require('../models/user')
 const helper = require('./test_helper')
 
+//Let for storing the token
+let token
+
 beforeEach(async()=>{
+    await User.deleteMany({})
+    const user = {
+        name: 'Luis Miguel',
+        username: "luismi",
+        password: "nochentera"
+    }
+
+    await api.post('/api/users').send(user)
+
+    const res = await api.post('/api/login').send(user)
+    
+    token = res.body.token
+
     await Blog.deleteMany({})
 
     for (let blog of helper.initialBlogs){
-        let blogObject = new Blog(blog)
-        await blogObject.save()
+        await api.post('/api/blogs')
+            .set('Authorization', `Bearer ${token}`)
+            .send(blog)
     }
 })
 
@@ -37,11 +54,26 @@ test('POST requests adds a new post succesfully',async()=>{
 
     await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(201)
 
     notesEnd = await helper.blogsInDB()
     expect(notesEnd).toHaveLength(helper.initialBlogs.length+1)
+})
+
+test('POST requests fail 401 if token is not provided', async () =>{
+    const newBlog = {
+        title: 'Si bastasen un par de canciones',
+        author: 'Eros Ramazotti',
+        url: 'https://www.youtube.com/watch?v=BP1MrzirtEo',
+        likes: 69
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(401)
 })
 
 test('if likes property is not defined it is initialized at 0', async()=>{
@@ -53,6 +85,7 @@ test('if likes property is not defined it is initialized at 0', async()=>{
 
     const res = await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(201)
 
@@ -72,11 +105,13 @@ test('if title or url are missing the response is 400 bad request', async() =>{
 
     await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(blogWithNoTitle)
         .expect(400)
 
     await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(blogWithNoUrl)
         .expect(400)
 },)
@@ -86,6 +121,7 @@ test('DELETE requests delete blogs succesfully', async () =>{
     const idToDelete = res.body[0].id.toString()
 
     await api.delete(`/api/blogs/${idToDelete}`)
+        .set('Authorization', `Bearer ${token}`)
         .expect(204)
     
     const newRes = await api.get('/api/blogs')
